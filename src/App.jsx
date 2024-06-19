@@ -8,6 +8,7 @@ const initialData = [
 function App() {
   const [cadastros, setCadastros] = useState(initialData);
   const [editingCadastro, setEditingCadastro] = useState(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   const handleDeleteClick = (id) => {
     setCadastros(cadastros.filter(cadastro => cadastro.id !== id));
@@ -15,6 +16,12 @@ function App() {
 
   const handleEditClick = (cadastro) => {
     setEditingCadastro(cadastro);
+    setIsAdding(false);
+  };
+
+  const handleAddClick = () => {
+    setEditingCadastro({ id: cadastros.length + 1, nome: '', endereco: '', numero: '', cpf: '', email: '', telefone: '' });
+    setIsAdding(true);
   };
 
   const handleInputChange = (e) => {
@@ -23,19 +30,26 @@ function App() {
   };
 
   const handleSave = () => {
-    setCadastros(cadastros.map(cadastro => 
-      cadastro.id === editingCadastro.id ? editingCadastro : cadastro
-    ));
+    if (isAdding) {
+      setCadastros([...cadastros, editingCadastro]);
+    } else {
+      setCadastros(cadastros.map(cadastro => 
+        cadastro.id === editingCadastro.id ? editingCadastro : cadastro
+      ));
+    }
     setEditingCadastro(null);
+    setIsAdding(false);
   };
 
   const handleCancel = () => {
     setEditingCadastro(null);
+    setIsAdding(false);
   };
 
   return (
     <div>
       <h1>Lista de Cadastros</h1>
+      <button onClick={handleAddClick} className="green">+ Adicionar Cadastro</button>
       <table>
         <thead>
           <tr>
@@ -68,9 +82,9 @@ function App() {
         </tbody>
       </table>
 
-      {editingCadastro && (
+      {(editingCadastro || isAdding) && (
         <div className="edit-form">
-          <h2>Editar Cadastro</h2>
+          <h2>{isAdding ? 'Adicionar Cadastro' : 'Editar Cadastro'}</h2>
           <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
             <input
               name="nome"
